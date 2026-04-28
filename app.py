@@ -2,10 +2,6 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-
-
-
-
 # parameters
 batch_size=4
 block_size=8
@@ -35,10 +31,10 @@ data=torch.tensor(encode(text),dtype=torch.long)
 #spliting of data
 n=int(0.8*len(data))
 train_split=data[:n]
-test_spilt=data[n:]
+test_splitt=data[n:]
 
 def batch(z):
-    curr_data=train_split if z=='train' else test_spilt
+    curr_data=train_split if z=='train' else test_splitt
     ix=torch.randint(len(curr_data)-block_size,(batch_size,))
     x=torch.stack([curr_data[i:i+block_size] for i in ix])
     y=torch.stack([curr_data[i+1:i+block_size+1] for i in ix])
@@ -54,7 +50,7 @@ x,y=batch("train")
 def estimate_loss():
     out = {}
     model.eval()
-    for split in ['train','val']:
+    for split in ['train','test']:
         losses = torch.zeros(eval_iters)
         for k in range(eval_iters):
             X, Y = batch(split)
@@ -106,7 +102,7 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 for iter in range(max_iters):
     if iter % eval_iters == 0:
         losses = estimate_loss()
-        print(f"step: {iter}, train loss: {losses['train']:.3f}, val loss: {losses['val']:.3f}")
+        print(f"step: {iter}, train loss: {losses['train']:.3f}, val loss: {losses['test']:.3f}")
 
     # sample a batch of data
     xb, yb =batch('train')
